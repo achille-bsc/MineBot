@@ -1,0 +1,28 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Blagues API renovate config",
+  "extends": ["config:base", "helpers:pinGitHubActionDigests", "group:allNonMajor"],
+  "schedule": ["before 3am on the first day of the month"],
+  "baseBranches": ["dev"],
+  "rangeStrategy": "bump",
+  "npm": {
+    "packageRules": [
+      {
+        "matchUpdateTypes": ["minor", "patch"],
+        "matchCurrentVersion": "!/^0/",
+        "automerge": true
+      },
+      {
+        "matchPackagePatterns": ["eslint", "prettier", "commitlint", "lint-staged", "husky"],
+        "groupName": "Devtools Dependencies"
+      },
+      {
+        "matchPackagePatterns": ["prisma", "@prisma/client"],
+        "groupName": "Prisma Dependencies"
+      }
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  }
+}

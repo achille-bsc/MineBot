@@ -1,0 +1,10 @@
+node_modules
+.env
+database.db*
+databases
+dist
+archive
+dist
+.nuxt
+.DS_Store
+sw.*

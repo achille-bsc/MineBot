@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id            String @id @db.VarChar(255)
+  user_name          String @db.VarChar(255)
+  user_avatar        String
+  user_token         String
+  user_token_refresh String
+  token              String
+  token_key          String
+  limit              Int    @default(100)
+
+  @@index([user_id], name: "users_user_id")
+  @@map("users")
+}
+
+model Godfather {
+  id       Int    @id @default(autoincrement())
+  user_id  String @unique @db.VarChar(255)
+  emoji_id String @db.VarChar(255)
+
+  @@index([user_id], name: "godfathers_user_id")
+  @@map("godfathers")
+}
+
+model Proposal {
+  id            Int           @id @default(autoincrement())
+  user_id       String?       @db.VarChar(255)
+  message_id    String?       @unique @db.VarChar(255)
+  type          ProposalType
+  joke_id       Int?          @unique
+  joke_type     String?       @db.VarChar(255)
+  joke_question String?       @db.VarChar(255)
+  joke_answer   String?       @db.VarChar(255)
+  merged        Boolean       @default(false)
+  refused       Boolean       @default(false)
+  stale         Boolean       @default(false)
+  created_at    DateTime      @default(now())
+  approvals     Approval[]
+  disapprovals  Disapproval[]
+
+  suggestion_id Int?
+  suggestion    Proposal?  @relation("ProposalToCorrections", fields: [suggestion_id], references: [id], onDelete: Cascade)
+  corrections   Proposal[] @relation("ProposalToCorrections")
+
+  @@map("proposals")
+}
+
+model Approval {
+  proposal_id Int
+  user_id     String   @db.VarChar(255)
+  proposal    Proposal @relation(fields: [proposal_id], references: [id], onDelete: Cascade)
+
+  @@id([proposal_id, user_id])
+  @@index([proposal_id], name: "approvals_proposal_id")
+  @@map("approvals")
+}
+
+model Disapproval {
+  proposal_id Int
+  user_id     String   @db.VarChar(255)
+  proposal    Proposal @relation(fields: [proposal_id], references: [id], onDelete: Cascade)
+
+  @@id([proposal_id, user_id])
+  @@index([proposal_id], name: "disapprovals_proposal_id")
+  @@map("disapprovals")
+}
+
+enum ProposalType {
+  SUGGESTION
+  CORRECTION
+  SUGGESTION_CORRECTION
+}
